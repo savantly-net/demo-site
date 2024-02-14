@@ -36,10 +36,6 @@ const GET_ROOT_LAYOUT_QUERY = gql(/* GraphQL */ `
   }
 `);
 
-type ServerProps = {
-  data: RootLayoutContentsQuery;
-};
-
 async function getData() {
   var queryData = await getApolloRscClient().query({
     query: GET_ROOT_LAYOUT_QUERY,
@@ -51,10 +47,8 @@ async function getData() {
 
 export default async function RootLayout({
   children,
-  props,
 }: Readonly<{
   children: React.ReactNode;
-  props: ServerProps;
 }>) {
   const localize = useLocalizedField();
 
@@ -83,7 +77,11 @@ export default async function RootLayout({
       </Head>
       <body className={inter.className}>
         <ApolloWrapper schemaUri={schemaUri}>{children}</ApolloWrapper>
-        <script key="embed-cms" async src="https://content.savantly.cloud/scripts/embed-sdk.js" />
+        <script
+          key="embed-cms"
+          async
+          src="https://content.savantly.cloud/scripts/embed-sdk.js"
+        />
       </body>
     </html>
   );
