@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 0, 154, 177;
+  --background-start-rgb: 0, 212, 255;
+  --background-end-rgb: 30, 173, 235;
+}
+
+
+html, body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  background: radial-gradient(circle, rgba(var(--background-start-rgb)) 0%, rgba(var(--background-end-rgb)) 70%);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+h3 {
+  @apply text-3xl;
+  @apply py-2;
+}
