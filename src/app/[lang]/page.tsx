@@ -1,8 +1,8 @@
 import { gql } from "@/__generated__/gql";
 import { getApolloRscClient } from "@/apollo";
 import { first } from "@/lib/arrayHelpers";
-import { getFirstImageUrl } from "@/lib/cmsHelpers";
-import Head from "next/head";
+import { getFirstImageUrl, getLocalizedField } from "@/lib/cmsHelpers";
+import { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
 
 // This is the query that will be used to get the homepage contents
@@ -15,16 +15,26 @@ const GET_HOMEPAGE_QUERY = gql(/* GraphQL */ `
     queryHomepageContents {
       editToken
       status
-      flatData {
-        title
-        headline
+      data {
+        title {
+          en
+          es
+        }
+        headline {
+          en
+          es
+        }
         heroImage {
-          url
+          iv {
+            url
+          }
         }
         features {
-          text
-          image {
-            url
+          iv {
+            text
+            image {
+              url
+            }
           }
         }
       }
@@ -38,25 +48,52 @@ async function getData() {
   });
 }
 
-export default async function Home() {
-  // our query's result, data, is typed!
+type Props = {
+  params: { lang: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // read route params
+  const lang = params.lang;
   const data = await getData();
   const contents = first(data.data.queryHomepageContents!);
 
+  // optionally access and extend (rather than replace) parent metadata
+  const previousImages = (await parent).openGraph?.images || [];
+
+  const title = getLocalizedField(lang, contents.data.title);
+  const headline = getLocalizedField(lang, contents.data.headline);
+
+  return {
+    title: title,
+    description: headline,
+    openGraph: {
+      images: [...previousImages],
+      description: headline,
+    },
+  };
+}
+
+export default async function Home({ params, searchParams }: Props) {
+  // our query's result, data, is typed!
+  const data = await getData();
+  const contents = first(data.data.queryHomepageContents!);
+  const title = getLocalizedField(params.lang, contents.data.title);
+  const headline = getLocalizedField(params.lang, contents.data.headline);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
-      <Head>
-        <title>{contents.flatData.title}</title>
-        <meta name="description" content={contents.flatData.headline || ""} />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <div className="z-10 max-w-5xl w-full items-center justify-between">
         <p
           className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 text-white p-6 backdrop-filter backdrop-blur"
           style={{ backgroundColor: "rgb(var(--background-rgb))" }}
           squidex-token={contents.editToken}
         >
-          {contents.flatData.title}
+          {title}
         </p>
       </div>
 
@@ -64,10 +101,10 @@ export default async function Home() {
         {/* HERO IMAGE as background */}
         <Image
           squidex-token={contents.editToken}
-          src={getFirstImageUrl(contents.flatData.heroImage)}
+          src={getFirstImageUrl(contents.data.heroImage?.iv)}
           layout="fill"
           objectFit="cover"
-          alt={contents.flatData.title || "hero image"}
+          alt={title}
         />
 
         <div className="absolute inset-0" />
@@ -75,13 +112,13 @@ export default async function Home() {
           className="z-10 text-white text-6xl font-bold"
           squidex-token={contents.editToken}
         >
-          {contents.flatData.headline}
+          {headline}
         </h1>
       </div>
 
       <div className="relative flex items-start py-4">
         {/* FEATURE BLOCKS */}
-        {contents.flatData.features?.map((feature, index) => (
+        {contents.data.features?.iv?.map((feature, index) => (
           <div
             key={index}
             className="flex flex-col items-start justify-center p-8 space-y-4 items-center w-1/3"
