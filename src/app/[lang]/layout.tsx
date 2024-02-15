@@ -1,16 +1,16 @@
 import { gql } from "@/__generated__";
-import { RootLayoutContentsQuery } from "@/__generated__/graphql";
 import { getApolloRscClient } from "@/apollo";
 import { ApolloWrapper } from "@/apollo/ApolloWrapper";
 import { first } from "@/lib/arrayHelpers";
 import { schemaUri } from "@/lib/cms";
 import { useLocalizedField } from "@/lib/cmsHelpers";
 import { getRGBColor } from "@/lib/color";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import Head from "next/head";
 import "../globals.css";
+import { supportedLocales } from "@/lib/localizationHelpers";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Poppins({ subsets: ["latin"], weight: "400" });
 
 const GET_ROOT_LAYOUT_QUERY = gql(/* GraphQL */ `
   query RootLayoutContents {
@@ -35,6 +35,13 @@ const GET_ROOT_LAYOUT_QUERY = gql(/* GraphQL */ `
     }
   }
 `);
+
+// Return a list of `langs` to populate the [lang] dynamic segment
+export async function generateStaticParams() {
+  return supportedLocales.map((l) => ({
+    lang: l,
+  }))
+}
 
 async function getData() {
   var queryData = await getApolloRscClient().query({
