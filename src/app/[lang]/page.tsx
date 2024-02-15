@@ -126,7 +126,7 @@ export default async function Home({ params, searchParams }: Props) {
             <Image
               squidex-token={contents.editToken}
               src={getFirstImageUrl(feature.image)}
-              className="w-128 h-128 rounded-full"
+              className="w-128 h-128"
               alt="feature"
               width={300}
               height={300}
