@@ -12,7 +12,6 @@ import "../globals.css";
 
 type Props = {
   params: { lang: string };
-  searchParams: { [key: string]: string | string[] | undefined };
 };
 
 const inter = Poppins({ subsets: ["latin"], weight: "400" });
@@ -63,7 +62,7 @@ async function getData() {
 }
 
 export async function generateMetadata(
-  { params, searchParams }: Props,
+  { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   // read route params
